@@ -12,7 +12,7 @@ import threading
 import random
 
 # --- কনফিগারেশন ---
-BOT_TOKEN = "8656424951:AAEFKKgwDdZbGS68SyL68AAqeql_LAp5Nko"
+BOT_TOKEN = "8656424951:AAHEUoOikTfN2RW-ztfSzR93ktRdvJvwIpY"
 SUPER_ADMIN_ID = 8851327780
 SMM_API_URL = "https://my.smmgen.com/api/v2"
 SMM_API_KEY = "3a822188552bd0017f91c72d06e46832"
