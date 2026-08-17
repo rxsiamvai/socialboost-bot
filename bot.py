@@ -1661,7 +1661,6 @@ tracker_thread.start()
 print("SocialBoost BD Enterprise Final is live and running...")
 
 # Safe navigation
-def safe_back_nav(c):
     try:
         bot.clear_step_handler_by_chat_id(c.message.chat.id)
     except:
@@ -1725,7 +1724,6 @@ def handle_order_back(call):
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
-@bot.callback_query_handler(func=lambda c: c.data in ['back_to_services', 'back_to_cats', 'cancel_order', 'back_cat', 'back_srv'])
 @bot.message_handler(commands=['start'])
 @bot.callback_query_handler(func=lambda call: call.data == "cancel_action")
 @bot.message_handler(func=lambda msg: msg.text == "🧹 𝗖𝗹𝗲𝗮𝗿 𝗖𝗵𝗮𝘁")
@@ -1760,7 +1758,31 @@ bot = telebot.TeleBot(BOT_TOKEN)
 @bot.callback_query_handler(func=lambda call: call.data == "adm_subadmin_manage")
 @bot.callback_query_handler(func=lambda call: call.data.startswith("adm_"))
 @bot.message_handler(func=lambda msg: True)
-@bot.callback_query_handler(func=lambda c: c.data in ['back_to_services', 'back_to_cats', 'cancel_order', 'back_cat', 'back_srv'])
 @bot.callback_query_handler(func=lambda call: call.data.startswith('back_'))
 @bot.callback_query_handler(func=lambda call: call.data in ['back_to_services', 'back_to_cats', 'back_service', 'back_cat'])
+
+
+# --- Safe Order Back Navigation ---
+@bot.callback_query_handler(func=lambda c: c.data in ['back_to_services', 'back_to_cats', 'cancel_order', 'back_cat', 'back_srv'])
+def safe_order_back(c):
+    chat_id = c.message.chat.id
+    try:
+        bot.clear_step_handler_by_chat_id(chat_id)
+    except:
+        pass
+    try:
+        bot.answer_callback_query(c.id)
+    except:
+        pass
+    if 'cat' in c.data:
+        try:
+            show_categories(chat_id, c.message.message_id)
+        except:
+            pass
+    else:
+        try:
+            show_services(chat_id, c.message.message_id)
+        except:
+            pass
+
 bot.infinity_polling(timeout=60, long_polling_timeout=60)
