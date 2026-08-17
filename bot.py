@@ -1674,3 +1674,25 @@ tracker_thread.start()
 # --- বট লঞ্চিং ---
 print("SocialBoost BD Enterprise Final is live and running...")
 bot.infinity_polling(timeout=60, long_polling_timeout=60)
+
+
+# --- Back Button & Navigation Handler ---
+@bot.callback_query_handler(func=lambda call: call.data.startswith('back_'))
+def handle_back_navigation(call):
+    chat_id = call.message.chat.id
+    message_id = call.message.message_id
+    target = call.data.split('_', 1)[1]
+    
+    try:
+        bot.answer_callback_query(call.id)
+    except:
+        pass
+
+    if target == 'main':
+        bot.delete_state(chat_id) if hasattr(bot, 'delete_state') else None
+        bot.send_message(chat_id, '🏠 প্রধান মেনু:', reply_markup=main_menu_markup())
+    elif target == 'cats':
+        show_categories(chat_id, message_id)
+    elif target.startswith('cat_'):
+        cat_id = target.split('_')[1]
+        show_services(chat_id, cat_id, message_id)
