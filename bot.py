@@ -324,7 +324,7 @@ def handle_cancel(call):
         del deposit_state[chat_id]
     bot.clear_step_handler_by_chat_id(chat_id)
     try:
-        bot.edit_message_text("❌ অপারেশন বাতিল করা হয়েছে।", chat_id, call.message.message_id)
+        bot.edit_message_text("❌ পূর্ববর্তী মেনু।", chat_id, call.message.message_id)
     except:
         pass
     msg = bot.send_message(chat_id, "প্রধান মেনু:", reply_markup=user_keyboard())
