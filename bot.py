@@ -1,6 +1,5 @@
 
 # --- Safe Back Navigation & State Preserver ---
-@bot.callback_query_handler(func=lambda c: c.data in ['back_to_services', 'back_to_cats', 'cancel_order', 'back_cat', 'back_srv'])
 def safe_back_handler(c):
     chat_id = c.message.chat.id
     bot.clear_step_handler_by_chat_id(chat_id)
@@ -43,7 +42,6 @@ HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 }
 
-bot = telebot.TeleBot(BOT_TOKEN)
 
 user_last_click = {}
 order_lock = set()
@@ -306,7 +304,6 @@ def validate_target_link(platform_name, link):
     return True
 
 # --- ইউজার স্টার্ট ---
-@bot.message_handler(commands=['start'])
 def start_cmd(message):
     if is_spamming(message.chat.id):
         return
@@ -337,7 +334,6 @@ def start_cmd(message):
     msg = bot.send_message(message.chat.id, welcome_text, reply_markup=user_keyboard(), parse_mode="Markdown")
     track_msg(message.chat.id, msg.message_id)
 
-@bot.callback_query_handler(func=lambda call: call.data == "cancel_action")
 def handle_cancel(call):
     chat_id = call.message.chat.id
     if chat_id in user_flow:
@@ -353,7 +349,6 @@ def handle_cancel(call):
     track_msg(chat_id, msg.message_id)
 
 # --- 🧹 ক্লিয়ার চ্যাট ---
-@bot.message_handler(func=lambda msg: msg.text == "🧹 𝗖𝗹𝗲𝗮𝗿 𝗖𝗵𝗮𝘁")
 def clear_chat_history(message):
     chat_id = message.chat.id
     msgs_to_del = user_recent_msgs.get(chat_id, [])
@@ -367,7 +362,6 @@ def clear_chat_history(message):
     track_msg(chat_id, msg.message_id)
 
 # --- 🎰 লাকি স্পিন হুইল ও বোনাস ---
-@bot.message_handler(func=lambda msg: msg.text == "🎁 𝗗𝗮𝗶𝗹𝘆 𝗦𝗽𝗶𝗻")
 def spin_wheel_bonus(message):
     if is_spamming(message.chat.id):
         return
@@ -408,7 +402,6 @@ def spin_wheel_bonus(message):
     check_and_merge_wallets(message.chat.id)
 
 # --- ৩-টায়ার ওয়ালেট ---
-@bot.message_handler(func=lambda msg: msg.text == "💎 𝗠𝘆 𝗪𝗮𝗹𝗹𝗲𝘁")
 def my_wallet(message):
     if is_spamming(message.chat.id):
         return
@@ -438,13 +431,11 @@ def my_wallet(message):
     msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
     track_msg(message.chat.id, msg.message_id)
 
-@bot.message_handler(func=lambda msg: msg.text == "📢 𝗡𝗼𝘁𝗶𝗰𝗲")
 def show_notice(message):
     if is_spamming(message.chat.id):
         return
     bot.send_message(message.chat.id, f"📢 **সর্বশেষ নোটিশ:**\n\n{get_setting('notice')}", parse_mode="Markdown")
 
-@bot.message_handler(func=lambda msg: msg.text == "👥 𝗥𝗲𝗳𝗲𝗿 & 𝗘𝗮𝗿𝗻")
 def refer_earn(message):
     if is_spamming(message.chat.id):
         return
@@ -477,7 +468,6 @@ def refer_earn(message):
     bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode="Markdown")
 
 # --- ডিপোজিট সিস্টেম ---
-@bot.message_handler(func=lambda msg: msg.text == "💳 𝗔𝗱𝗱 𝗙𝘂𝗻𝗱")
 def start_deposit_flow(message):
     if is_spamming(message.chat.id):
         return
@@ -521,7 +511,6 @@ def start_deposit_flow(message):
     msg = bot.send_message(message.chat.id, text, reply_markup=markup, parse_mode="Markdown")
     track_msg(message.chat.id, msg.message_id)
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("depamt_"))
 def process_deposit_amount(call):
     amt_type = call.data.replace("depamt_", "")
     chat_id = call.message.chat.id
@@ -574,7 +563,6 @@ def show_payment_methods(message, amount_bdt):
     if hasattr(message, 'message_id'):
         bot.send_message(chat_id, text, reply_markup=markup, parse_mode="Markdown")
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("paym_"))
 def process_payment_method(call):
     method = call.data.replace("paym_", "").upper()
     chat_id = call.message.chat.id
@@ -636,7 +624,6 @@ def get_deposit_photo(message):
     photo_id = message.photo[-1].file_id if message.photo else ""
     finalize_deposit_submission(chat_id, photo_id)
 
-@bot.callback_query_handler(func=lambda call: call.data == "skip_screenshot")
 def skip_photo_callback(call):
     chat_id = call.message.chat.id
     if chat_id in deposit_state:
@@ -695,7 +682,6 @@ def finalize_deposit_submission(chat_id, photo_id):
             del deposit_state[chat_id]
 
 # --- ইন-বট সাপোর্ট ---
-@bot.message_handler(func=lambda msg: msg.text == "💬 𝟮𝟰/𝟳 𝗦𝘂𝗽𝗽𝗼𝗿𝘁")
 def trigger_support(message):
     if is_spamming(message.chat.id):
         return
@@ -732,7 +718,6 @@ def handle_user_support_msg(message):
 
     bot.send_message(message.chat.id, "✅ আপনার বার্তাটি অ্যাডমিনের কাছে পাঠানো হয়েছে।", reply_markup=user_keyboard())
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("rep_sup_"))
 def admin_reply_ticket(call):
     if not is_admin(call.message.chat.id):
         return
@@ -748,7 +733,6 @@ def send_admin_reply_to_user(message, target_user_id):
         bot.send_message(message.chat.id, f"❌ মেসেজ পাঠানো যায়নি: {str(e)}")
 
 # --- 🔥 স্পেশাল অফার সেকশন ---
-@bot.message_handler(func=lambda msg: msg.text == "🔥 𝗦𝗽𝗲𝗰𝗶𝗮𝗹 𝗢𝗳𝗳𝗲𝗿𝘀")
 def special_offers_menu(message):
     if is_spamming(message.chat.id):
         return
@@ -772,7 +756,6 @@ def special_offers_menu(message):
     bot.send_message(message.chat.id, "🔥 **HOT SPECIAL DEALS (সীমিত সময়ের অফার):**", reply_markup=markup, parse_mode="Markdown")
 
 # --- মাল্টি-লেয়ার টপ ৫ অর্ডার ফ্লো ---
-@bot.message_handler(func=lambda msg: msg.text == "🚀 𝗡𝗲𝘄 𝗢𝗿𝗱𝗲𝗿")
 def select_category_order(message):
     if is_spamming(message.chat.id):
         return
@@ -797,7 +780,6 @@ def select_category_order(message):
     markup.add(types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_action"))
     bot.send_message(message.chat.id, "🎯 **প্ল্যাটফর্ম নির্বাচন করুন:**", reply_markup=markup, parse_mode="Markdown")
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("ord_cat_"))
 def show_subcategories(call):
     cat_id = int(call.data.replace("ord_cat_", ""))
     conn = get_db()
@@ -816,7 +798,6 @@ def show_subcategories(call):
     except:
         pass
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("ord_sub_"))
 def show_tier_options(call):
     parts = call.data.split("_")
     cat_id, sub_name = int(parts[2]), parts[3]
@@ -832,7 +813,6 @@ def show_tier_options(call):
     except:
         pass
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("ord_tier_"))
 def show_refill_options(call):
     parts = call.data.split("_")
     cat_id, sub_name, tier_type = int(parts[2]), parts[3], parts[4]
@@ -849,7 +829,6 @@ def show_refill_options(call):
     except:
         pass
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("ord_ref_"))
 def show_filtered_top5_services(call):
     parts = call.data.split("_")
     cat_id, sub_name, tier_type, refill_type = int(parts[2]), parts[3], parts[4], parts[5]
@@ -881,7 +860,6 @@ def show_filtered_top5_services(call):
     except:
         pass
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("sel_srv_"))
 def start_order_placement(call):
     service_id = int(call.data.replace("sel_srv_", ""))
     user_flow[call.message.chat.id] = {"service_id": service_id}
@@ -994,7 +972,6 @@ def get_order_qty_step(message):
         order_lock.discard(chat_id)
 
 # --- অর্ডার হিস্ট্রি ---
-@bot.message_handler(func=lambda msg: msg.text == "📦 𝗠𝘆 𝗢𝗿𝗱𝗲𝗿𝘀")
 def my_orders_list(message):
     if is_spamming(message.chat.id):
         return
@@ -1013,7 +990,6 @@ def my_orders_list(message):
         markup.add(types.InlineKeyboardButton(f"#{smm_id} - {s_name[:22]} [{st}]", callback_data=f"v_ord_{o_id}"))
     bot.send_message(message.chat.id, "📦 **আপনার সাম্প্রতিক অর্ডারসমূহ (বিস্তারিত দেখতে ট্যাপ করুন):**", reply_markup=markup, parse_mode="Markdown")
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("v_ord_"))
 def view_order_details(call):
     o_id = int(call.data.replace("v_ord_", ""))
     conn = get_db()
@@ -1065,7 +1041,6 @@ def view_order_details(call):
     except:
         pass
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("refill_"))
 def handle_refill(call):
     smm_id = call.data.replace("refill_", "")
     try:
@@ -1080,7 +1055,6 @@ def handle_refill(call):
         except:
             pass
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("cnclreq_"))
 def handle_cancel_req(call):
     smm_id = call.data.replace("cnclreq_", "")
     bot.send_message(SUPER_ADMIN_ID, f"⚠️ **ইউজার অর্ডার বাতিলের রিকোয়েস্ট পাঠিয়েছে!**\nOrder ID: `{smm_id}`\nUser ID: `{call.message.chat.id}`", parse_mode="Markdown")
@@ -1089,7 +1063,6 @@ def handle_cancel_req(call):
     except:
         pass
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("repissue_"))
 def handle_report_issue(call):
     smm_id = call.data.replace("repissue_", "")
     bot.send_message(call.message.chat.id, f"অর্ডার `#{smm_id}` নিয়ে সমস্যাটি বিস্তারিত লিখুন:", reply_markup=cancel_inline())
@@ -1100,7 +1073,6 @@ def send_order_issue(message, smm_id):
     bot.send_message(message.chat.id, "✅ আপনার রিপোর্টটি সফলভাবে অ্যাডমিনের কাছে পৌঁছেছে।", reply_markup=user_keyboard())
 
 # --- ডিপোজিট অ্যাকশন ও রেফারেল কমিশন ---
-@bot.callback_query_handler(func=lambda call: call.data.startswith(("apprv_", "rjct_")))
 def handle_deposit_action(call):
     if not is_admin(call.message.chat.id):
         return
@@ -1168,13 +1140,11 @@ def handle_deposit_action(call):
             pass
 
 # --- অ্যাডমিন কন্ট্রোল প্যানেল ---
-@bot.message_handler(commands=['admin'])
 def admin_panel_root(message):
     if not is_admin(message.chat.id):
         return
     bot.send_message(message.chat.id, "👑 **অ্যাডমিন কন্ট্রোল ড্যাশবোর্ড**", reply_markup=admin_main_menu(is_owner(message.chat.id)), parse_mode="Markdown")
 
-@bot.callback_query_handler(func=lambda call: call.data.startswith("adm_menu_"))
 def handle_admin_submenus(call):
     if not is_admin(call.message.chat.id):
         return
@@ -1241,7 +1211,6 @@ def handle_admin_submenus(call):
         except:
             pass
 
-@bot.callback_query_handler(func=lambda call: call.data == "adm_root")
 def admin_root_return(call):
     try:
         bot.edit_message_text("👑 **অ্যাডমিন কন্ট্রোল ড্যাশবোর্ড**", call.message.chat.id, call.message.message_id, reply_markup=admin_main_menu(is_owner(call.message.chat.id)), parse_mode="Markdown")
@@ -1249,7 +1218,6 @@ def admin_root_return(call):
         pass
 
 # --- সুরক্ষিত অটো-সিঙ্ক ইঞ্জিন ---
-@bot.callback_query_handler(func=lambda call: call.data == "adm_autosync")
 def auto_sync_multitier(call):
     if not is_admin(call.message.chat.id):
         return
@@ -1401,7 +1369,6 @@ def auto_sync_multitier(call):
     threading.Thread(target=sync_worker, daemon=True).start()
 
 # --- স্পেশাল অফার কন্ট্রোল ---
-@bot.callback_query_handler(func=lambda call: call.data == "adm_manage_special")
 def manage_special_deals(call):
     chat_id = call.message.chat.id
     bot.send_message(chat_id, "ফরম্যাট: `Bot_Service_ID 1` (স্পেশাল করতে) অথবা `Bot_Service_ID 0` (বাদ দিতে):", reply_markup=cancel_inline(), parse_mode="Markdown")
@@ -1420,7 +1387,6 @@ def process_set_special(message):
         bot.send_message(message.chat.id, "❌ ভুল ফরম্যাট!")
 
 # --- স্টাফ ও সুপার অ্যাডমিন ২ ম্যানেজমেন্ট ---
-@bot.callback_query_handler(func=lambda call: call.data == "adm_subadmin_manage")
 def start_staff_management(call):
     chat_id = call.message.chat.id
     if not is_owner(chat_id):
@@ -1496,7 +1462,6 @@ def process_staff_role_change(message):
         bot.send_message(chat_id, "❌ আইডি অবশ্যই সঠিক সংখ্যা হতে হবে।")
 
 # --- অ্যাডমিন এডিট অপশনস ---
-@bot.callback_query_handler(func=lambda call: call.data.startswith("adm_"))
 def execute_admin_ops(call):
     if not is_admin(call.message.chat.id):
         return
@@ -1641,7 +1606,6 @@ def broadcast_step(message):
     bot.send_message(message.chat.id, f"✅ মোট {sent} জন ইউজারের কাছে নোটিশ ব্রডকাস্ট সম্পন্ন।")
 
 # --- স্মার্ট আননোন ইনপুট হ্যান্ডলার ---
-@bot.message_handler(func=lambda msg: True)
 def handle_all_unknown_messages(message):
     if is_spamming(message.chat.id):
         return
@@ -1697,7 +1661,6 @@ tracker_thread.start()
 print("SocialBoost BD Enterprise Final is live and running...")
 
 # Safe navigation
-@bot.callback_query_handler(func=lambda c: c.data in ['back_to_services', 'back_to_cats', 'cancel_order', 'back_cat', 'back_srv'])
 def safe_back_nav(c):
     try:
         bot.clear_step_handler_by_chat_id(c.message.chat.id)
@@ -1721,7 +1684,6 @@ def safe_back_nav(c):
 
 
 # --- Back Button & Navigation Handler ---
-@bot.callback_query_handler(func=lambda call: call.data.startswith('back_'))
 def handle_back_navigation(call):
     chat_id = call.message.chat.id
     message_id = call.message.message_id
@@ -1742,7 +1704,6 @@ def handle_back_navigation(call):
         show_services(chat_id, cat_id, message_id)
 
 
-@bot.callback_query_handler(func=lambda call: call.data in ['back_to_services', 'back_to_cats', 'back_service', 'back_cat'])
 def handle_order_back(call):
     chat_id = call.message.chat.id
     bot.clear_step_handler_by_chat_id(chat_id)
@@ -1761,4 +1722,45 @@ def handle_order_back(call):
         elif 'send_services' in globals():
             send_services(call.message)
 
+
+bot = telebot.TeleBot(BOT_TOKEN)
+
+@bot.callback_query_handler(func=lambda c: c.data in ['back_to_services', 'back_to_cats', 'cancel_order', 'back_cat', 'back_srv'])
+@bot.message_handler(commands=['start'])
+@bot.callback_query_handler(func=lambda call: call.data == "cancel_action")
+@bot.message_handler(func=lambda msg: msg.text == "🧹 𝗖𝗹𝗲𝗮𝗿 𝗖𝗵𝗮𝘁")
+@bot.message_handler(func=lambda msg: msg.text == "🎁 𝗗𝗮𝗶𝗹𝘆 𝗦𝗽𝗶𝗻")
+@bot.message_handler(func=lambda msg: msg.text == "💎 𝗠𝘆 𝗪𝗮𝗹𝗹𝗲𝘁")
+@bot.message_handler(func=lambda msg: msg.text == "📢 𝗡𝗼𝘁𝗶𝗰𝗲")
+@bot.message_handler(func=lambda msg: msg.text == "👥 𝗥𝗲𝗳𝗲𝗿 & 𝗘𝗮𝗿𝗻")
+@bot.message_handler(func=lambda msg: msg.text == "💳 𝗔𝗱𝗱 𝗙𝘂𝗻𝗱")
+@bot.callback_query_handler(func=lambda call: call.data.startswith("depamt_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("paym_"))
+@bot.callback_query_handler(func=lambda call: call.data == "skip_screenshot")
+@bot.message_handler(func=lambda msg: msg.text == "💬 𝟮𝟰/𝟳 𝗦𝘂𝗽𝗽𝗼𝗿𝘁")
+@bot.callback_query_handler(func=lambda call: call.data.startswith("rep_sup_"))
+@bot.message_handler(func=lambda msg: msg.text == "🔥 𝗦𝗽𝗲𝗰𝗶𝗮𝗹 𝗢𝗳𝗳𝗲𝗿𝘀")
+@bot.message_handler(func=lambda msg: msg.text == "🚀 𝗡𝗲𝘄 𝗢𝗿𝗱𝗲𝗿")
+@bot.callback_query_handler(func=lambda call: call.data.startswith("ord_cat_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("ord_sub_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("ord_tier_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("ord_ref_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("sel_srv_"))
+@bot.message_handler(func=lambda msg: msg.text == "📦 𝗠𝘆 𝗢𝗿𝗱𝗲𝗿𝘀")
+@bot.callback_query_handler(func=lambda call: call.data.startswith("v_ord_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("refill_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("cnclreq_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith("repissue_"))
+@bot.callback_query_handler(func=lambda call: call.data.startswith(("apprv_", "rjct_")))
+@bot.message_handler(commands=['admin'])
+@bot.callback_query_handler(func=lambda call: call.data.startswith("adm_menu_"))
+@bot.callback_query_handler(func=lambda call: call.data == "adm_root")
+@bot.callback_query_handler(func=lambda call: call.data == "adm_autosync")
+@bot.callback_query_handler(func=lambda call: call.data == "adm_manage_special")
+@bot.callback_query_handler(func=lambda call: call.data == "adm_subadmin_manage")
+@bot.callback_query_handler(func=lambda call: call.data.startswith("adm_"))
+@bot.message_handler(func=lambda msg: True)
+@bot.callback_query_handler(func=lambda c: c.data in ['back_to_services', 'back_to_cats', 'cancel_order', 'back_cat', 'back_srv'])
+@bot.callback_query_handler(func=lambda call: call.data.startswith('back_'))
+@bot.callback_query_handler(func=lambda call: call.data in ['back_to_services', 'back_to_cats', 'back_service', 'back_cat'])
 bot.infinity_polling(timeout=60, long_polling_timeout=60)
