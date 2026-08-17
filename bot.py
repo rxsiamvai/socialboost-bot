@@ -1718,7 +1718,6 @@ def safe_back_nav(c):
         except:
             pass
 
-bot.infinity_polling(timeout=60, long_polling_timeout=60)
 
 
 # --- Back Button & Navigation Handler ---
@@ -1761,3 +1760,5 @@ def handle_order_back(call):
             show_services(chat_id, call.message.message_id)
         elif 'send_services' in globals():
             send_services(call.message)
+
+bot.infinity_polling(timeout=60, long_polling_timeout=60)
