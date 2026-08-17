@@ -1695,6 +1695,29 @@ tracker_thread.start()
 
 # --- বট লঞ্চিং ---
 print("SocialBoost BD Enterprise Final is live and running...")
+
+# Safe navigation
+@bot.callback_query_handler(func=lambda c: c.data in ['back_to_services', 'back_to_cats', 'cancel_order', 'back_cat', 'back_srv'])
+def safe_back_nav(c):
+    try:
+        bot.clear_step_handler_by_chat_id(c.message.chat.id)
+    except:
+        pass
+    try:
+        bot.answer_callback_query(c.id)
+    except:
+        pass
+    if 'cat' in c.data:
+        try:
+            show_categories(c.message.chat.id, c.message.message_id)
+        except:
+            pass
+    else:
+        try:
+            show_services(c.message.chat.id, c.message.message_id)
+        except:
+            pass
+
 bot.infinity_polling(timeout=60, long_polling_timeout=60)
 
 
