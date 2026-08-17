@@ -1,3 +1,25 @@
+
+# --- Safe Back Navigation & State Preserver ---
+@bot.callback_query_handler(func=lambda c: c.data in ['back_to_services', 'back_to_cats', 'cancel_order', 'back_cat', 'back_srv'])
+def safe_back_handler(c):
+    chat_id = c.message.chat.id
+    bot.clear_step_handler_by_chat_id(chat_id)
+    try:
+        bot.answer_callback_query(c.id)
+    except:
+        pass
+
+    if 'cat' in c.data:
+        if 'show_categories' in globals():
+            show_categories(chat_id, c.message.message_id)
+        elif 'send_categories' in globals():
+            send_categories(c.message)
+    else:
+        if 'show_services' in globals():
+            show_services(chat_id, c.message.message_id)
+        elif 'send_services' in globals():
+            send_services(c.message)
+
 import keep_alive
 keep_alive.keep_alive()
 import telebot
