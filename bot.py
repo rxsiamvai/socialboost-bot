@@ -1696,3 +1696,23 @@ def handle_back_navigation(call):
     elif target.startswith('cat_'):
         cat_id = target.split('_')[1]
         show_services(chat_id, cat_id, message_id)
+
+
+@bot.callback_query_handler(func=lambda call: call.data in ['back_to_services', 'back_to_cats', 'back_service', 'back_cat'])
+def handle_order_back(call):
+    chat_id = call.message.chat.id
+    bot.clear_step_handler_by_chat_id(chat_id)
+    try:
+        bot.answer_callback_query(call.id)
+    except:
+        pass
+    if 'cats' in call.data or 'cat' in call.data:
+        if 'show_categories' in globals():
+            show_categories(chat_id, call.message.message_id)
+        elif 'send_categories' in globals():
+            send_categories(call.message)
+    else:
+        if 'show_services' in globals():
+            show_services(chat_id, call.message.message_id)
+        elif 'send_services' in globals():
+            send_services(call.message)
