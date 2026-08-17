@@ -1,3 +1,5 @@
+import keep_alive
+keep_alive.keep_alive()
 import telebot
 from telebot import types
 import requests
